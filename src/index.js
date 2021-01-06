@@ -5,8 +5,6 @@ const constants = require('./config/constants');
 const middlewareConfig = require('./middleware');
 const apiEndpoints = require('./endpoints');
 
-const { requestListener } = require('./callback.js');
-
 const app = express();
 middlewareConfig(app);
 apiEndpoints(app);
