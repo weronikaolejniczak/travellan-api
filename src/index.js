@@ -1,14 +1,17 @@
-let { requestListener } = require('./callback.js');
+require('dotenv').config();
 
 const express = require('express');
 const constants = require('./config/constants');
+const middlewareConfig = require('./middleware');
 const apiEndpoints = require('./endpoints');
 
+const { requestListener } = require('./callback.js');
+
 const app = express();
+middlewareConfig(app);
 apiEndpoints(app);
 
 const PORT = constants.PORT;
-
 app.listen(PORT, (err) => {
     if (err) {
         console.log('Error!');

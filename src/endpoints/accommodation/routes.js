@@ -8,9 +8,6 @@ const scrapeBooking = require('../../services/scrapeBooking');
 const Router = express.Router;
 const routes = new Router();
 
-// localhost:4001/v1/accommodation?region={region}&name={name}
-    // e.g.
-    // localhost:4001/v1/accommodation?region=ch&name=longemalle
 const getHotel = (req, res) => {    
     const query = url.parse(req.url, true).query;
     const region = query.region;
@@ -24,7 +21,9 @@ const getHotel = (req, res) => {
     });
 };
 
-// GET /v1/accommodation
+// GET /v1/accommodation?region={region}&name={name}
+    // e.g.
+    // GET /v1/accommodation?region=ch&name=longemalle
 routes.get('/', getHotel);
 
 module.exports = routes;
