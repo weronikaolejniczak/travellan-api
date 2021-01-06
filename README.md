@@ -1,4 +1,5 @@
-# Simple hotel scraper
+# Travellan API
 
 ## Overview
-For now used as Booking.com/hotel scraper. 
+
+Backend application for Travellan project.
