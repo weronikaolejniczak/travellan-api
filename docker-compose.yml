@@ -1,7 +1,8 @@
 version: "3.6"
+
 services:
-  db:
-    image: mysql:8
+  mysql:
+    image: mysql:latest
     restart: always
     environment:
       MYSQL_DATABASE: ${DB_NAME}
@@ -9,10 +10,27 @@ services:
       MYSQL_PASSWORD: ${DB_PASS}
       MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASS}
     ports:
-      - '3331:3331'
-    expose:
-      - '3331'
+      - '3331:3306'
     volumes:
       - ./database:/var/lib/mysql
+    networks:
+      - travellan
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    restart: always
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+      PMA_ARBITRARY: 1
+    ports:
+      - '8080:80'
+    networks:
+      - travellan
+
+networks:
+  travellan:
+    driver: bridge
+
 volumes:
   database:
