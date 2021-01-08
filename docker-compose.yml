@@ -1,0 +1,18 @@
+version: "3.6"
+services:
+  db:
+    image: mysql:8
+    restart: always
+    environment:
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASS}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASS}
+    ports:
+      - '3331:3331'
+    expose:
+      - '3331'
+    volumes:
+      - ./database:/var/lib/mysql
+volumes:
+  database:
