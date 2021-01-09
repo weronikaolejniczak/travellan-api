@@ -27,12 +27,10 @@ const getHotelByName = (req, res) => {
         radius,
         radiusUnit: 'KM',
     })
-    .then((response) => {
-        res.json(response.data);
-    })
-    .catch((err) => {
-        throw new Error(`Error ${err.code}: ${err.message}`);
-    });
+        .then((response) => res.json(response.data))
+        .catch((err) => {
+            throw new Error(`Error ${err.code}: ${err.message}`);
+        });
 }
 
 routes.get('/hotelByName', getHotelByName);
@@ -55,9 +53,7 @@ const getHotelRecommendation = (req, res) => {
         radius,
         radiusUnit: 'KM',
     })
-    .then((response) => {
-        res.json(response.data);
-    })
+    .then((response) => res.json(response.data))
     .catch((err) => {
         throw new Error(`Error ${err.code}: ${err.message}`);
     });
