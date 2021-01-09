@@ -1,27 +1,28 @@
 const express = require('express');
 const url = require('url');
 
-const fetchWeather = require('../../services/fetchWeather');
+const fetchUnsplashImage = require('../../services/fetchUnsplashImage');
 
 const Router = express.Router;
 const routes = new Router();
+
 /** 
- * GET /v1/weather?latitude={latitude}&longitude={longitude}
+ * GET /v1/images/unsplash?keyword={keyword}
  * e.g.
- * GET /v1/weather?latitude=52.4064&longitude=16.9252
+ * GET /v1/images/unsplash?keyword=Barcelona
  * */
 
-const getWeather = (req, res) => {    
+const getUnsplashImage = (req, res) => {    
     const query = url.parse(req.url, true).query;
-    const { latitude, longitude } = query;
+    const { keyword } = query;
 
-    fetchWeather(latitude, longitude)
+    fetchUnsplashImage(keyword)
         .then((result) => { 
             if (result === -1) throw new Error('Something went wrong...');
             else res.json(result);
     });
 };
 
-routes.get('/', getWeather);
+routes.get('/unsplash', getUnsplashImage);
 
 module.exports = routes;
