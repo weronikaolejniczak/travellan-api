@@ -12,6 +12,32 @@ const amadeus = new Amadeus({
 });
 
 /** 
+ * GET /v1/accommodation/hotelByName?cityCode={cityCode}&radius={radius}&hotelName={hotelName}
+ * e.g.
+ * GET /v1/accommodation/hotelByName?cityCode=POZ&radius=5&hotelName=CAMPANILE
+ * */
+
+const getHotelByName = (req, res) => {
+    const query = url.parse(req.url, true).query;
+    const { cityCode, hotelName, radius } = query;
+
+    amadeus.shopping.hotelOffers.get({
+        cityCode,
+        hotelName,
+        radius,
+        radiusUnit: 'KM',
+    })
+    .then((response) => {
+        res.json(response.data);
+    })
+    .catch((err) => {
+        throw new Error(`Error ${err.code}: ${err.message}`);
+    });
+}
+
+routes.get('/hotelByName', getHotelByName);
+
+/** 
  * GET /v1/accommodation/recommendation?adults={adults}&cityCode={cityCode}&checkInDate={checkInDate}&checkOutDate={checkOutDate}&radius={radius}
  * e.g.
  * GET /v1/accommodation/recommendation?adults=2&cityCode=PAR&checkInDate=2021-03-05&2021-03-08&radius=10
@@ -19,18 +45,14 @@ const amadeus = new Amadeus({
 
 const getHotelRecommendation = (req, res) => {
     const query = url.parse(req.url, true).query;
-    const adults = query.adults;
-    const cityCode = query.cityCode;
-    const checkInDate = query.checkInDate;
-    const checkOutDate = query.checkOutDate;
-    const radius = query.radius;
+    const { adults, cityCode, checkInDate, checkOutDate, radius } = query;
 
     amadeus.shopping.hotelOffers.get({
-        adults: adults,
+        adults,
         cityCode,
         checkInDate,
         checkOutDate,
-        radius: radius,
+        radius,
         radiusUnit: 'KM',
     })
     .then((response) => {
