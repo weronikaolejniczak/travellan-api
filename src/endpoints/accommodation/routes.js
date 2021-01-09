@@ -12,29 +12,33 @@ const amadeus = new Amadeus({
 });
 
 /** 
- * GET /v1/accommodation/recommendation?
+ * GET /v1/accommodation/recommendation?adults={adults}&cityCode={cityCode}&checkInDate={checkInDate}&checkOutDate={checkOutDate}&radius={radius}
  * e.g.
- * GET /v1/accommodation/recommendation?
+ * GET /v1/accommodation/recommendation?adults=2&cityCode=PAR&checkInDate=2021-03-05&2021-03-08&radius=10
  * */
 
 const getHotelRecommendation = (req, res) => {
-    /* const query = url.parse(req.url, true).query;
-    const region = query.region;
-    const name = query.name; */
+    const query = url.parse(req.url, true).query;
+    const adults = query.adults;
+    const cityCode = query.cityCode;
+    const checkInDate = query.checkInDate;
+    const checkOutDate = query.checkOutDate;
+    const radius = query.radius;
 
-    amadeus.shopping.flightOffersSearch
-        .get({
-            originLocationCode: 'SYD',
-            destinationLocationCode: 'BKK',
-            departureDate: '2021-04-01',
-            adults: '2'
-        })
-        .then((response) => {
-            res.json(response.data);
-        })
-        .catch((err) => {
-            throw new Error(`Error ${err.code}: ${err.message}`);
-        });
+    amadeus.shopping.hotelOffers.get({
+        adults: adults,
+        cityCode,
+        checkInDate,
+        checkOutDate,
+        radius: radius,
+        radiusUnit: 'KM',
+    })
+    .then((response) => {
+        res.json(response.data);
+    })
+    .catch((err) => {
+        throw new Error(`Error ${err.code}: ${err.message}`);
+    });
 }
 
 routes.get('/recommendation', getHotelRecommendation);
