@@ -111,7 +111,6 @@ const scrapeBooking = (url) => {
             }
         })
         .catch((err) => {
-            console.log(err);
             throw err;
         });
 }
