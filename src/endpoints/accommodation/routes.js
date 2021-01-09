@@ -40,7 +40,7 @@ routes.get('/hotelByName', getHotelByName);
 /** 
  * GET /v1/accommodation/recommendation?adults={adults}&cityCode={cityCode}&checkInDate={checkInDate}&checkOutDate={checkOutDate}&radius={radius}
  * e.g.
- * GET /v1/accommodation/recommendation?adults=2&cityCode=PAR&checkInDate=2021-03-05&2021-03-08&radius=10
+ * GET /v1/accommodation/recommendation?adults=2&cityCode=PAR&checkInDate=2021-03-05&checkOutDate=2021-03-08&radius=10
  * */
 
 const getHotelRecommendation = (req, res) => {
