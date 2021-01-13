@@ -4,7 +4,9 @@ const Amadeus = require('amadeus');
 
 const Hotel = require('../../models/Hotel');
 const scrapeBooking = require('../../services/scrapeBooking');
-const countryCodes = require('../../data/countryCodes.json');
+const checkIfCreditCardPaymentIsPossible = require('../../helpers/checkIfCreditCardPaymentIsPossible');
+const formatLocationData = require('../../helpers/formatLocationData');
+const capitalizeEachWord = require('../../helpers/capitalizeEachWord');
 
 const Router = express.Router;
 const routes = new Router();
@@ -19,30 +21,6 @@ const amadeus = new Amadeus({
  * GET /v1/accommodation/hotelByName?cityCode=POZ&radius=5&hotelName=CAMPANILE
  * */
 
-const checkIfCreditCardPaymentIsPossible = (data) => !!(
-    Array.isArray(data.offers) && data.offers.length > 0
-        && data.offers[0].policies.guarantee
-        && Array.isArray(data.offers[0].policies.guarantee.acceptedPayments)
-        && data.offers[0].policies.guarantee.acceptedPayments.methods.includes('CREDIT_CARD')
-);
-
-const formatName = (name) => 
-    name.toLowerCase().split(' ').map((word) => word.charAt(0).toUpperCase() + word.substring(1)).join(' ');
-
-const formatLocationData = (hotelData) => {
-    const latitude = hotelData.latitude;
-    const longitude = hotelData.longitude;
-
-    const addressLines = formatName(hotelData.address.lines.join(' '));
-    const postalCode = hotelData.address.postalCode;
-    const cityName = formatName(hotelData.address.cityName);
-    const countryName = countryCodes[hotelData.address.countryCode];
-
-    const address = `${addressLines}, ${postalCode} ${cityName}, ${countryName}`;
-
-    return { address, latitude, longitude };
-}
-
 const getHotelByName = (req, res) => {
     const query = url.parse(req.url, true).query;
     const { cityCode, hotelName, radius } = query;
@@ -54,18 +32,11 @@ const getHotelByName = (req, res) => {
         radiusUnit: 'KM',
     })
         .then((response) => {
-            if (response.data.length === 0) {
-                throw new Error(`Error: the response is empty`);
-            }
+            if (response.data.length === 0) throw new Error(`Error: the response is empty`);
 
             const data = response.data[0];
             const amenities = data.hotel.amenities.map((item) => item.toLowerCase().split('_').join(' '));
-            const phone = data.hotel.contact.phone;
-            const creditCardPaymentPossible = checkIfCreditCardPaymentIsPossible(data);
-            const description = data.hotel.description.text;
-            const location = formatLocationData(data.hotel);
             const image = data.hotel.media[0].uri;
-            const name = formatName(data.hotel.name);
 
             const hotel = new Hotel(
                 amenities,
@@ -73,13 +44,13 @@ const getHotelByName = (req, res) => {
                 undefined,
                 undefined,
                 undefined,
-                phone,
-                creditCardPaymentPossible,
-                description,
+                data.hotel.contact.phone,
+                checkIfCreditCardPaymentIsPossible(data),
+                data.hotel.description.text,
                 undefined,
-                location,
+                formatLocationData(data.hotel),
                 image,
-                name
+                capitalizeEachWord(data.hotel.name)
             );
 
             res.json(hotel);
@@ -109,7 +80,30 @@ const getHotelRecommendation = (req, res) => {
         radius,
         radiusUnit: 'KM',
     })
-    .then((response) => res.json(response.data))
+    .then((response) => {
+        if (response.data.length === 0) throw new Error(`Error: the response is empty`);
+
+        const data = response.data[0];
+        const amenities = data.hotel.amenities.map((item) => item.toLowerCase().split('_').join(' '));
+        const image = data.hotel.media[0].uri;
+
+        const hotel = new Hotel(
+            amenities,
+            undefined,
+            undefined,
+            undefined,
+            undefined,
+            data.hotel.contact.phone,
+            checkIfCreditCardPaymentIsPossible(data),
+            data.hotel.description.text,
+            undefined,
+            formatLocationData(data.hotel),
+            image,
+            capitalizeEachWord(data.hotel.name)
+        );
+
+        res.json(hotel);
+    })
     .catch((err) => {
         throw new Error(`Error ${err.code}: ${err.message}`);
     });
