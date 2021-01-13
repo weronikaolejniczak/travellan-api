@@ -1,11 +1,11 @@
 class Hotel {
     constructor(
-        ammenities,
+        amenities,
         breakfast,
         checkInExtra,
         checkInHours,
         checkOutHours,
-        contact,
+        phone,
         creditCardPaymentPossible,
         description,
         frontDesk24H,
@@ -13,12 +13,12 @@ class Hotel {
         image,
         name,
     ) {
-        this.ammenities = ammenities;
+        this.amenities = amenities;
         this.breakfast = breakfast;
         this.checkInExtra = checkInExtra;
         this.checkInHours = checkInHours;
         this.checkOutHours = checkOutHours;
-        this.contact = contact;
+        this.phone = phone;
         this.creditCardPaymentPossible = creditCardPaymentPossible;
         this.description = description;
         this.frontDesk24H = frontDesk24H;

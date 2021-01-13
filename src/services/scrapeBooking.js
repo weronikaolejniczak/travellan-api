@@ -36,9 +36,10 @@ const scrapeBooking = (url) => {
                 .replace(/\nul. /g, '')
                 .replace(/\n/g, '')
                 .trim();
-            const ammenities = cheerio("#hotel_main_content > div.hp_hotel_description_hightlights_wrapper > div.hotel_description_wrapper_exp.hp-description > div.hp_desc_important_facilities.clearfix.hp_desc_important_facilities--bui > div", html).text()
+            const amenities = cheerio("#hotel_main_content > div.hp_hotel_description_hightlights_wrapper > div.hotel_description_wrapper_exp.hp-description > div.hp_desc_important_facilities.clearfix.hp_desc_important_facilities--bui > div", html).text()
                 .split("\n")
-                .filter((item) => item !== "");
+                .filter((item) => item !== "")
+                .map((item) => item.toLowerCase());
             const breakfast = cheerio("span.ph-item-copy-breakfast-option", html).text()
                 .split(', ');
             const checkInHours = cheerio("#checkin_policy > p:nth-child(2) > span", html).text()
@@ -65,7 +66,7 @@ const scrapeBooking = (url) => {
             const location = await fetchCoordinates(address);
             
             const hotel = new Hotel(
-                ammenities,
+                amenities,
                 breakfast,
                 checkInExtra,
                 checkInHours,
