@@ -82,6 +82,7 @@ const scrapeBooking = (url) => {
                 },
                 image,
                 name,
+                undefined
             );
 
             if (hotel) {

@@ -12,6 +12,7 @@ class Hotel {
         location,
         image,
         name,
+        offer
     ) {
         this.amenities = amenities;
         this.breakfast = breakfast;
@@ -25,6 +26,7 @@ class Hotel {
         this.location = location;
         this.image = image;
         this.name = name;
+        this.offer = offer;
     }
 }
 
