@@ -67,7 +67,7 @@ routes.get('/hotelByName', getHotelByName);
 /** 
  * GET /v1/accommodation/recommendation?adults={adults}&cityCode={cityCode}&checkInDate={checkInDate}&checkOutDate={checkOutDate}&radius={radius}&roomQuantity={roomQuantity}
  * e.g.
- * GET /v1/accommodation/recommendation?adults=2&cityCode=PAR&checkInDate=2021-03-05&checkOutDate=2021-03-08&radius=10&roomQuantity=1
+ * GET /v1/accommodation/recommendation?adults=1&cityCode=LCY&checkInDate=2021-02-05&checkOutDate=2021-02-08&radius=25&roomQuantity=1
  * */
 
 const getHotelRecommendation = (req, res) => {
@@ -80,33 +80,42 @@ const getHotelRecommendation = (req, res) => {
         checkInDate,
         checkOutDate,
         radius,
+        page: 5,
         radiusUnit: 'KM',
         roomQuantity
     })
     .then((response) => {
-        if (response.data.length === 0) throw new Error(`Error: the response is empty`);
+        if (response.data.length === 0) res.json([]);
 
-        const data = response.data[0];
-        const amenities = data.hotel.amenities.map((item) => item.toLowerCase().split('_').join(' '));
-        const image = data.hotel.media[0].uri;
+        const list = [];
+        const data = response.data;
+        console.log(response.data);
 
-        const hotel = new Hotel(
-            amenities,
-            undefined,
-            undefined,
-            undefined,
-            undefined,
-            data.hotel.contact.phone,
-            checkIfCreditCardPaymentIsPossible(data),
-            data.hotel.description.text,
-            undefined,
-            formatLocationData(data.hotel),
-            image,
-            capitalizeEachWord(data.hotel.name),
-            getHotelOffer(data.offers)
-        );
+        for (let i = 0; i < data.length; i++) {
+            const item = response.data[i];
+            const amenities = item.hotel.amenities.map((item) => item.toLowerCase().split('_').join(' '));
+            const image = item.hotel.media[0].uri;
+    
+            const hotel = new Hotel(
+                amenities,
+                undefined,
+                undefined,
+                undefined,
+                undefined,
+                item.hotel.contact.phone,
+                checkIfCreditCardPaymentIsPossible(item),
+                item.hotel.description.text,
+                undefined,
+                formatLocationData(item.hotel),
+                image,
+                capitalizeEachWord(item.hotel.name),
+                getHotelOffer(item.offers)
+            );
 
-        res.json(hotel);
+            list.push(hotel);
+        }
+
+        res.json(list);
     })
     .catch((err) => {
         throw new Error(`Error ${err.code}: ${err.message}`);
