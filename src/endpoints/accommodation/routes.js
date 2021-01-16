@@ -135,7 +135,7 @@ const getBookingHotel = (req, res) => {
     const region = query.region;
     const name = query.name;
 
-    scrapeBooking(`https://www.booking.com/hotel/${region}/${name}.html`)
+    scrapeBooking(encodeURI(`https://www.booking.com/hotel/${region}/${name}.html`))
         .then((result) => { 
             if (result === -1) throw new Error('Something went wrong...');
             else res.json(result);
