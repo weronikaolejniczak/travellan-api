@@ -10,7 +10,7 @@ const defaultImage = {
 const fetchUnsplashImage = (keyword) => {
     return request({
         method: 'GET',
-        uri: `https://api.unsplash.com/search/photos?page=1&query=${keyword}&client_id=${process.env.UNSPLASH_API_KEY}`,
+        uri: encodeURI(`https://api.unsplash.com/search/photos?page=1&query=${keyword}&client_id=${process.env.UNSPLASH_API_KEY}`),
         json: true
     })
         .then((data) => {

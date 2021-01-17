@@ -39,20 +39,23 @@ const getHotelByName = (req, res) => {
             const amenities = data.hotel.amenities.map((item) => item.toLowerCase().split('_').join(' '));
             const image = data.hotel.media[0].uri;
 
+            // $todo: check possiblity of credit card payment
             const hotel = new Hotel(
                 amenities,
                 undefined,
                 undefined,
                 undefined,
                 undefined,
-                data.hotel.contact.phone,
-                checkIfCreditCardPaymentIsPossible(data),
+                checkIfCreditCardPaymentIsPossible(data.offers[0]),
                 data.hotel.description.text,
                 undefined,
-                formatLocationData(data.hotel),
+                undefined,
                 image,
+                formatLocationData(data.hotel),
                 capitalizeEachWord(data.hotel.name),
-                undefined
+                undefined,
+                data.hotel.contact.phone,
+                undefined,
             );
 
             res.json(hotel);
@@ -89,27 +92,31 @@ const getHotelRecommendation = (req, res) => {
 
         const list = [];
         const data = response.data;
-        console.log(response.data);
+        console.log(JSON.stringify(response.data[0].offers)); // DELETE!
 
         for (let i = 0; i < data.length; i++) {
             const item = response.data[i];
             const amenities = item.hotel.amenities.map((item) => item.toLowerCase().split('_').join(' '));
-            const image = item.hotel.media[0].uri;
+            //const image = item.hotel.media[0].uri;
+            const image = 'https://images.unsplash.com/photo-1496417263034-38ec4f0b665a?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=1502&q=80';
     
+            // $todo: check possiblity of credit card payment
             const hotel = new Hotel(
                 amenities,
                 undefined,
                 undefined,
                 undefined,
                 undefined,
-                item.hotel.contact.phone,
-                checkIfCreditCardPaymentIsPossible(item),
+                checkIfCreditCardPaymentIsPossible(item.offers[0]),
                 item.hotel.description.text,
+                item.hotel.dupeId,
                 undefined,
-                formatLocationData(item.hotel),
                 image,
+                formatLocationData(item.hotel),
                 capitalizeEachWord(item.hotel.name),
-                getHotelOffer(item.offers)
+                getHotelOffer(item.offers),
+                item.hotel.contact.phone,
+                item.hotel.rating,
             );
 
             list.push(hotel);
