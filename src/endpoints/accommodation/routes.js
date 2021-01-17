@@ -39,20 +39,23 @@ const getHotelByName = (req, res) => {
             const amenities = data.hotel.amenities.map((item) => item.toLowerCase().split('_').join(' '));
             const image = data.hotel.media[0].uri;
 
+            // $todo: check possiblity of credit card payment
             const hotel = new Hotel(
                 amenities,
                 undefined,
                 undefined,
                 undefined,
                 undefined,
-                data.hotel.contact.phone,
                 checkIfCreditCardPaymentIsPossible(data),
                 data.hotel.description.text,
                 undefined,
-                formatLocationData(data.hotel),
+                undefined,
                 image,
+                formatLocationData(data.hotel),
                 capitalizeEachWord(data.hotel.name),
-                undefined
+                undefined,
+                data.hotel.contact.phone,
+                undefined,
             );
 
             res.json(hotel);
@@ -89,27 +92,30 @@ const getHotelRecommendation = (req, res) => {
 
         const list = [];
         const data = response.data;
-        console.log(response.data);
+        console.log(response.data); // DELETE!
 
         for (let i = 0; i < data.length; i++) {
             const item = response.data[i];
             const amenities = item.hotel.amenities.map((item) => item.toLowerCase().split('_').join(' '));
             const image = item.hotel.media[0].uri;
     
+            // $todo: check possiblity of credit card payment
             const hotel = new Hotel(
                 amenities,
                 undefined,
                 undefined,
                 undefined,
                 undefined,
-                item.hotel.contact.phone,
-                checkIfCreditCardPaymentIsPossible(item),
-                item.hotel.description.text,
+                checkIfCreditCardPaymentIsPossible(data),
+                data.hotel.description.text,
+                undefined, //dupeId,
                 undefined,
-                formatLocationData(item.hotel),
                 image,
-                capitalizeEachWord(item.hotel.name),
+                formatLocationData(data.hotel),
+                capitalizeEachWord(data.hotel.name),
                 getHotelOffer(item.offers)
+                data.hotel.contact.phone,
+                undefined //rating,
             );
 
             list.push(hotel);

@@ -5,7 +5,7 @@ const Weather = require('../models/Weather');
 const fetchWeather = (latitude, longitude) => {
     return request({
         method: 'GET',
-        uri: `http://api.openweathermap.org/data/2.5/onecall?lat=${latitude}&lon=${longitude}&exclude={hourly,current,minutely}&APPID=${process.env.WEATHER_API_KEY}&units=metric`,
+        uri: encodeURI(`http://api.openweathermap.org/data/2.5/onecall?lat=${latitude}&lon=${longitude}&exclude={hourly,current,minutely}&APPID=${process.env.WEATHER_API_KEY}&units=metric`),
         json: true
     })
       .then((data) => {
