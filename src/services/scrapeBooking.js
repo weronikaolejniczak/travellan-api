@@ -25,10 +25,21 @@ const parseImages = (html) => {
     return images.filter((image) => image && image.match(imageRegex))[0];
 }
 
+const parseBreakfast = (html) => {
+    const breakfast = [];
+    
+    const parsedBreakfast = cheerio("span.ph-item-copy-breakfast-option", html).text()
+        .split(', ');
+        
+    parsedBreakfast.forEach(item => item && breakfast.push(item));
+
+    return breakfast.length > 0 ? breakfast : undefined;
+}
+
 const scrapeBooking = (url) => {
     return request({
         method: 'GET',
-        uri: url,
+        uri: encodeURI(url),
         json: true
     })
         .then(async (html) => {
@@ -40,8 +51,7 @@ const scrapeBooking = (url) => {
                 .split("\n")
                 .filter((item) => item !== "")
                 .map((item) => item.toLowerCase());
-            const breakfast = cheerio("span.ph-item-copy-breakfast-option", html).text()
-                .split(', ');
+            const breakfast = parseBreakfast(html);
             const checkInHours = cheerio("#checkin_policy > p:nth-child(2) > span", html).text()
                 .replace(/\n/g, ' ')
                 .trim();
@@ -71,17 +81,19 @@ const scrapeBooking = (url) => {
                 checkInExtra,
                 checkInHours,
                 checkOutHours,
-                undefined,
                 creditCardPaymentPossible,
                 description,
+                undefined,
                 frontDesk24H,
+                image,
                 {
                     address,
                     latitude: location.lat,
                     longitude: location.lon
                 },
-                image,
                 name,
+                undefined,
+                undefined,
                 undefined
             );
 
