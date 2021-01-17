@@ -113,7 +113,7 @@ const getHotelRecommendation = (req, res) => {
                 image,
                 formatLocationData(data.hotel),
                 capitalizeEachWord(data.hotel.name),
-                getHotelOffer(item.offers)
+                getHotelOffer(item.offers),
                 data.hotel.contact.phone,
                 undefined //rating,
             );

@@ -7,7 +7,7 @@ class Hotel {
         checkOutHours,
         creditCardPaymentPossible,
         description,
-        dupeId
+        dupeId,
         frontDesk24H,
         image,
         location,
