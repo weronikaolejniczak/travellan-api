@@ -31,11 +31,15 @@ const getHotelByName = (req, res) => {
         hotelName,
         radius,
         radiusUnit: 'KM',
+        includeClosed: true
     })
         .then((response) => {
             if (response.data.length === 0) throw new Error(`Error: the response is empty`);
 
+            console.log(response.data[0]);
+
             const data = response.data[0];
+            const offers = data.offers && data.offers[0];
             const amenities = data.hotel.amenities.map((item) => item.toLowerCase().split('_').join(' '));
             const image = data.hotel.media[0].uri;
 
@@ -46,7 +50,7 @@ const getHotelByName = (req, res) => {
                 undefined,
                 undefined,
                 undefined,
-                checkIfCreditCardPaymentIsPossible(data.offers[0]),
+                offers ? checkIfCreditCardPaymentIsPossible(offers) : true,
                 data.hotel.description.text,
                 undefined,
                 undefined,
@@ -92,13 +96,11 @@ const getHotelRecommendation = (req, res) => {
 
         const list = [];
         const data = response.data;
-        console.log(JSON.stringify(response.data[0].offers)); // DELETE!
 
         for (let i = 0; i < data.length; i++) {
             const item = response.data[i];
             const amenities = item.hotel.amenities.map((item) => item.toLowerCase().split('_').join(' '));
-            //const image = item.hotel.media[0].uri;
-            const image = 'https://images.unsplash.com/photo-1496417263034-38ec4f0b665a?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=1502&q=80';
+            const image = item.hotel.media[0].uri;
     
             // $todo: check possiblity of credit card payment
             const hotel = new Hotel(
