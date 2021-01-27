@@ -35,7 +35,7 @@ const getHotelByName = (req, res) => {
         includeClosed: true
     })
         .then((response) => {
-            if (response.data.length === 0) throw new Error(`Error: the response is empty`);
+            if (response.data.length === 0) res.json([]);
 
             const data = response.data[0];
             const offers = data.offers && data.offers[0];
@@ -64,8 +64,9 @@ const getHotelByName = (req, res) => {
 
             res.json(hotel);
         })
-        .catch((err) => {
-            throw new Error(`Error ${err.code}: ${err.message}`);
+        .catch((error) => {
+            res.status(error.response.statusCode || 500);
+            res.json(JSON.parse(error.response.body));
         });
 }
 
@@ -93,7 +94,8 @@ const getHotelRecommendation = (req, res) => {
         page: 7,
     })
     .then((response) => {
-        if (response.data.length === 0) res.json([]);
+        //if (response.data.length === 0) res.json([]);
+        //if (response.errors.length > 0) res.json('ERROR');
 
         const list = [];
         const data = response.data;
@@ -128,8 +130,9 @@ const getHotelRecommendation = (req, res) => {
 
         res.json(list);
     })
-    .catch((err) => {
-        throw new Error(`Error ${err.code}: ${err.message}`);
+    .catch((error) => {
+        res.status(error.response.statusCode || 500);
+        res.json(JSON.parse(error.response.body));
     });
 }
 
@@ -148,9 +151,18 @@ const getBookingHotel = (req, res) => {
 
     scrapeBooking(`https://www.booking.com/hotel/${region}/${name}.html`)
         .then((result) => { 
-            if (result === -1) throw new Error('Something went wrong...');
+            if (result === -1) res.json('There was an error fetching data.')
             else res.json(result);
-    });
+        })
+        .catch((error) => {
+            res.status(404);
+            res.json({
+                error: {
+                    status: 404,
+                    message: 'Not Found',
+                },
+            })
+        });
 };
 
 routes.get('/booking', getBookingHotel);
