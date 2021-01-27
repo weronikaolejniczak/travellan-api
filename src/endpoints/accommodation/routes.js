@@ -17,31 +17,31 @@ const amadeus = new Amadeus({
 });
 
 /** 
- * GET /v1/accommodation/hotelByName?cityCode={cityCode}&radius={radius}&hotelName={hotelName}
+ * GET /v1/accommodation/hotelByName?latitude={latitude}&longitude={longitude}&radius={radius}&hotelName={hotelName}
  * e.g.
- * GET /v1/accommodation/hotelByName?cityCode=PAR&radius=5&hotelName=CAMPANILE
+ * GET /v1/accommodation/hotelByName?latitude=53.4285&longitude=14.5528&radius=5&hotelName=CAMPANILE
  * */
 
 const getHotelByName = (req, res) => {
     const query = url.parse(req.url, true).query;
-    const { cityCode, hotelName, radius } = query;
+    const { latitude, longitude, hotelName, radius } = query;
 
     amadeus.shopping.hotelOffers.get({
-        cityCode,
+        latitude,
+        longitude,
         hotelName,
         radius,
         radiusUnit: 'KM',
         includeClosed: true
     })
         .then((response) => {
-            if (response.data.length === 0) throw new Error(`Error: the response is empty`);
-
-            console.log(response.data[0]);
+            if (response.data.length === 0) res.json([]);
 
             const data = response.data[0];
             const offers = data.offers && data.offers[0];
             const amenities = data.hotel.amenities.map((item) => item.toLowerCase().split('_').join(' '));
-            const image = data.hotel.media[0].uri;
+            // const image = data.hotel.media[0].uri;
+            const image = 'https://images.unsplash.com/photo-1445991842772-097fea258e7b?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80';
 
             // $todo: check possiblity of credit card payment
             const hotel = new Hotel(
@@ -50,7 +50,7 @@ const getHotelByName = (req, res) => {
                 undefined,
                 undefined,
                 undefined,
-                offers ? checkIfCreditCardPaymentIsPossible(offers) : true,
+                true, // offers ? checkIfCreditCardPaymentIsPossible(offers) : true,
                 data.hotel.description.text,
                 undefined,
                 undefined,
@@ -64,35 +64,38 @@ const getHotelByName = (req, res) => {
 
             res.json(hotel);
         })
-        .catch((err) => {
-            throw new Error(`Error ${err.code}: ${err.message}`);
+        .catch((error) => {
+            res.status(error.response.statusCode || 500);
+            res.json(JSON.parse(error.response.body));
         });
 }
 
 routes.get('/hotelByName', getHotelByName);
 
 /** 
- * GET /v1/accommodation/recommendation?adults={adults}&cityCode={cityCode}&checkInDate={checkInDate}&checkOutDate={checkOutDate}&radius={radius}&roomQuantity={roomQuantity}
+ * GET /v1/accommodation/recommendation?latitude={latitude}&longitude={longitude}&radius={radius}&checkInDate={checkInDate}&checkOutDate={checkOutDate}&roomQuantity={roomQuantity}&adults={adults}
  * e.g.
- * GET /v1/accommodation/recommendation?adults=1&cityCode=LCY&checkInDate=2021-02-05&checkOutDate=2021-02-08&radius=25&roomQuantity=1
+ * GET /v1/accommodation/recommendation?latitude=53.4285&longitude=14.5528&radius=30&checkInDate=2021-03-15&checkOutDate=2021-03-18&roomQuantity=1&adults=1
  * */
 
 const getHotelRecommendation = (req, res) => {
     const query = url.parse(req.url, true).query;
-    const { adults, cityCode, checkInDate, checkOutDate, radius, roomQuantity } = query;
+    const { latitude, longitude, radius, checkInDate, checkOutDate, roomQuantity, adults } = query;
 
     amadeus.shopping.hotelOffers.get({
-        adults,
-        cityCode,
+        latitude,
+        longitude,
+        radius,
+        radiusUnit: 'KM',
         checkInDate,
         checkOutDate,
-        radius,
-        page: 5,
-        radiusUnit: 'KM',
-        roomQuantity
+        roomQuantity,
+        adults,
+        page: 7,
     })
     .then((response) => {
-        if (response.data.length === 0) res.json([]);
+        //if (response.data.length === 0) res.json([]);
+        //if (response.errors.length > 0) res.json('ERROR');
 
         const list = [];
         const data = response.data;
@@ -100,7 +103,8 @@ const getHotelRecommendation = (req, res) => {
         for (let i = 0; i < data.length; i++) {
             const item = response.data[i];
             const amenities = item.hotel.amenities.map((item) => item.toLowerCase().split('_').join(' '));
-            const image = item.hotel.media[0].uri;
+            // const image = item.hotel.media[0].uri;
+            const image = 'https://images.unsplash.com/photo-1445991842772-097fea258e7b?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80';
     
             // $todo: check possiblity of credit card payment
             const hotel = new Hotel(
@@ -109,7 +113,7 @@ const getHotelRecommendation = (req, res) => {
                 undefined,
                 undefined,
                 undefined,
-                checkIfCreditCardPaymentIsPossible(item.offers[0]),
+                true, // checkIfCreditCardPaymentIsPossible(item.offers[0]),
                 item.hotel.description.text,
                 item.hotel.dupeId,
                 undefined,
@@ -126,8 +130,9 @@ const getHotelRecommendation = (req, res) => {
 
         res.json(list);
     })
-    .catch((err) => {
-        throw new Error(`Error ${err.code}: ${err.message}`);
+    .catch((error) => {
+        res.status(error.response.statusCode || 500);
+        res.json(JSON.parse(error.response.body));
     });
 }
 
@@ -146,9 +151,18 @@ const getBookingHotel = (req, res) => {
 
     scrapeBooking(`https://www.booking.com/hotel/${region}/${name}.html`)
         .then((result) => { 
-            if (result === -1) throw new Error('Something went wrong...');
+            if (result === -1) res.json('There was an error fetching data.')
             else res.json(result);
-    });
+        })
+        .catch((error) => {
+            res.status(404);
+            res.json({
+                error: {
+                    status: 404,
+                    message: 'Not Found',
+                },
+            })
+        });
 };
 
 routes.get('/booking', getBookingHotel);
